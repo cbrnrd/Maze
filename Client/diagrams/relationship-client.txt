@@ -1,0 +1,13 @@
++--------------------------------+
+|           AsyncClient          |
++--------------------------------+
+| Fields:                        |
+| + is_connected                 |
+| + server_reader                |
+| + server_writer                |
++--------------------------------+
+| Public methods:                |
+| +__init__(host, port)          |
+| + connect()                    |
+| + start_remote_referee(player) |
++--------------------------------+

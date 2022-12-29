@@ -1,0 +1,126 @@
+#!/usr/bin/python3
+
+import os
+
+IGNORE = ['__pycache__', '.pytest_cache', 'Planning', 'Resources']
+
+README_OUTLINE = """# {{header}}
+{{purpose}}
+
+
+## Table of Contents
+{{toc}}
+
+## Relationship Diagrams
+{{diagrams}}
+"""
+
+
+def get_directories():
+    alldirs = [x[0] for x in os.walk('.')]
+    # remove all directories that are children of other directories (not ./)
+    alldirs = [x for x in alldirs if x.count('/') == 1]
+    # Remove all dirs that contain anything in IGNORE
+    return [x for x in alldirs if not any([y in x for y in IGNORE])]
+
+
+def replace_header(dir, outline):
+    """Replace the {{header}} section with the name of the directory."""
+    return outline.replace('{{header}}', dir.replace('./', ''))
+
+
+def replace_purpose(dir, outline):
+    """Replace the {{purpose}} section with the first comment of the `dir/__init__.py` file."""
+    # Purpose should be in __init__.py
+    try:
+        init = os.path.join(dir, '__init__.py')
+        content = get_top_level_comment(init)
+        return outline.replace('{{purpose}}', content)
+    except FileNotFoundError:
+        return outline.replace('{{purpose}}', 'No purpose found.')
+
+
+def replace_diagrams(dir, outline):
+    """Replace the {{diagrams}} section with a list of all the diagrams in the directory."""
+    try:
+        diagrams = [x for x in os.listdir(dir + '/diagrams') if x.endswith('.txt')]
+        # Put the diagram text in ``` blocks
+        for diag_path in sorted(diagrams):
+            diag_path = os.path.join(dir, 'diagrams', diag_path)
+            with open(diag_path, 'r') as f:
+                diag = f.read()
+            diag_path = os.path.join(diag_path.split('/')[-1])
+            diag = '### ' + diag_path + '\n```ascii\n' + diag + '\n```'
+            outline = outline.replace('{{diagrams}}', diag + '\n\n{{diagrams}}')
+    except FileNotFoundError:
+        return outline.replace('## Relationship Diagrams\n{{diagrams}}', '')
+    return outline.replace('{{diagrams}}', '')
+
+
+def get_top_level_comment(file):
+    """Get the first comment in a file."""
+    with open(file, 'r') as f:
+        # Read lines until it finds an ending `"""` or `'''`
+        lines = f.readlines()
+        result = []
+        in_comment = False
+        for line in lines:
+            if (line.strip().startswith('"""') or line.strip().startswith("'''")) and \
+                 (line.strip().endswith('"""') or line.strip().endswith("'''")):
+                result.append(line.strip().replace('"""', '').replace("'''", ''))
+                break
+            elif line.strip().startswith('"""') or line.strip().startswith("'''"):
+                in_comment = True
+                result.append(line.strip().replace('"""', '').replace("'''", ''))
+            elif line.strip().endswith('"""') or line.strip().endswith("'''"):
+                result.append(line.strip().replace('"""', '').replace("'''", ''))
+                break
+            elif in_comment:
+                result.append(line.strip())
+        return ' '.join(result)
+
+
+def replace_table_of_contents(dir, outline):
+    """Replace the {{toc}} section with a table of contents."""
+    # Get all the files in the directory
+    files = [x for x in os.listdir(dir) if x.endswith('.py')]
+    # Remove the __init__.py file
+    files = [x for x in files if x != '__init__.py']
+    # Remove the test_*.py files
+    files = [x for x in files if not x.startswith('test_')]
+    # Remove the xreadme.py file
+    files = [x for x in files if x != 'xreadme.py']
+    # Remove the README.md file
+    files = [x for x in files if x != 'README.md']
+    # Remove the diagrams directory
+
+    # Generate readme table with links to files
+    toc = '| File | Purpose |\n| ---- | ------- |\n'
+    for file in sorted(files):
+        file_path = os.path.join(dir, file)
+        purpose = get_top_level_comment(file_path)
+        toc += f'| [{file}]({file}) | {purpose} |\n'
+    return outline.replace('{{toc}}', toc)
+
+
+def generate_readme_for(dir):
+    readme = os.path.join(dir, 'README.md')
+    with open(readme, 'w') as f:
+        f.write(README_OUTLINE)
+
+
+if __name__ == '__main__':
+    for dir in get_directories():
+        text = replace_header(dir, README_OUTLINE)
+        text = replace_purpose(dir, text)
+        text = replace_diagrams(dir, text)
+        text = replace_table_of_contents(dir, text)
+        readme = os.path.join(dir, 'README.md')
+
+        # Check if file exists and is different
+        if os.path.exists(readme):
+            with open(readme, 'r') as f:
+                if f.read() == text:
+                    continue
+        with open(readme, 'w') as f:
+            f.write(text)

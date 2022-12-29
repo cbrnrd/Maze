@@ -1,0 +1,43 @@
++------------------------------------------------+
+|                    Referee                     |
++------------------------------------------------+
+| Fields:                                        |
+|                                                |  This is useful
+| + loop: asyncio.AbstractEventLoop              |  when the referee needs
+| + wrapped: AsyncReferee                        |  to be run in a synchronous
++------------------------------------------------+  context.
+| Methods:                                       |
+|                                                |
+| + __init__(board, spare)                       |
+| + create_initial_game_state(players)           |
+| + start_game(players, observers)               |
+| + start_game_from_state(state, players,        |
+|                         goal_queue, observers) |
++------------------------------------------------+
+
+
++------------------------------------------------+
+|                   AsyncReferee                 |
++------------------------------------------------+
+| Fields:                                        |
+|                                                |
+| + initial_spare_tile                           |
+| + goal_queue                                   |
+| + initial_board                                |
++------------------------------------------------+
+| Public methods:                                |
+|                                                |
+| + __init__(board, spare, height, width)        |
+| + create_initial_game_state(players)           |
+| + start_game(players, observers)               +--------+         +------------------------------+
+| + start_game_from_state(state, players,        +--------+-------->|           GameOutcome        |
+|                         goal_queue, observers) |   returns        +------------------------------+
++------------------------------------------------+                  | Fields:                      |
+                                                                    |                              |
+                                                                    | + winners                    |
+                                                                    | + ejected                    |
+                                                                    +------------------------------+
+                                                                    | Methods:                     |
+                                                                    |                              |
+                                                                    | + __init__(winners, ejected) |
+                                                                    +------------------------------+

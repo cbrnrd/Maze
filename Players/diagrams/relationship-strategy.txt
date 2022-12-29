@@ -1,0 +1,39 @@
+                                              +-------------------+
+                                              |                   |
+                                              |   +----------+    |
++---------------------+                       |   | TurnPass |    |
+|    Strategy(ABC)    |                       |   +----------+    |
++---------------------+                       |                   |
+| Methods:            |                       | +---------------+ |
+|                     |    returns one of     | |  TurnWithMove | |
+| + get_action(state) +---------------------->| +---------------+ |
++---------+-----------+                       | | Fields:       | |
+          |                                   | |               | |
+          |                                   | | + degrees     | |
+          +-----------+                       | | + shift       | |
+                      |                       | | + movement    | |
+                      v                       | +---------------+ |
+    +-------------------------------------+   |                   |
+    |        FirstViableMoveStrategy      |   +-------------------+
+    +-------------------------------------+
+    | Methods:                            |
+    |                                     |
+    | + movement_exploration_order(state) |
+    | + shift_exploration_order(state)    |
+    | + rotation_exploration_order(state) |
+    | + get_action(state)                 |
+    +------------------+------------------+
+                       |
+                       +-----------------------------------------------+
+                       |                                               |
+                       |                                               |
+                       v                                               v
+   +-------------------------------------+          +-------------------------------------+
+   |            RiemannStrategy          |          |            EuclidStrategy           |
+   +-------------------------------------+          +-------------------------------------+
+   | Overridden methods:                 |          | Overridden methods:                 |
+   |                                     |          |                                     |
+   | + movement_exploration_order(state) |          | + movement_exploration_order(state) |
+   | + shift_exploration_order(state)    |          | + shift_exploration_order(state)    |
+   | + rotation_exploration_order(state) |          | + rotation_exploration_order(state) |
+   +-------------------------------------+          +-------------------------------------+

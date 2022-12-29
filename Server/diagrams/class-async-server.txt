@@ -1,0 +1,30 @@
+   +---------------------------------------+
+   |           AsyncServerWrapper          |
+   +---------------------------------------+
+   |  Fields:                              |
+   |  + loop: asycio.AbstractEventLoop     |
+   |  + wrapped: AsyncServer               |
+   +---------------------------------------+
+   |  Public methods:                      |
+   |  + __init__(loop, wrapped)            |
+   |  + start(state, observers, goal_queue)|
+   +---------------------------------------+
+
+
++---------------------------------------------+
+|                  AsyncServer                |
++---------------------------------------------+
+| Fields:                                     |
+| + host                                      |
+| + port                                      |
+| + read_write_stream_pairs                   |
+| + server_socket                             |
+| + player_names                              |
++---------------------------------------------+
+| Public methods:                             |
+| + __init__(host, port)                      |
+| + start(state, observers)                   |
+| + wait_for_signups_and_run_game(state,      |
+|                                 observers,  |
+|                                 goal_queue) |
++---------------------------------------------+
